@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for
-from application import app, db
-from application.models import Posts
-from application.forms import PostForm
+from application import app, db, bcrypt
+from application.models import Posts, Users
+from application.forms import PostForm, RegistrationForm
 
 # define routes for / & /home, this function will be called when these are accessed
 @app.route('/')
@@ -39,7 +39,16 @@ def about():
 def login():
     return render_template('login.html', title='Log in')
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html', title='Register')
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hash_pw = bcrypt.generate_password_hash(form.password.data)
 
+        user = Users(email=form.email.data, password=hash_pw)
+
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('post'))
+    return render_template('register.html', title='Register', form=form)
