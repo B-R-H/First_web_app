@@ -1,19 +1,48 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import *
+from wtforms import StringField, SubmitField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from application import db
 from application.models import Posts, Users
 
-def Unique():
+def Unique_title():
+    #attempt to colaspe to singel unique function
+    message = 'value must be unique'
+
+    def _Unique_title(form, feild):
+        if str(Posts.query.filter_by(title = feild.data).all()) != '[]':
+            raise ValidationError("Value entered not unique.")
+            print('failed validation test for uniqueness')
+
+    return _Unique_title
+
+def Unique_content():
 
     message = 'value must be unique'
 
-    def _Unique(form, feild):
-        if str(Posts.query.filter_by(title = feild.data).all()) == '[]':
-            raise ValidationError("Vlaue entered not unique.")
+    def _Unique_content(form, feild):
+        if str(Posts.query.filter_by(content = feild.data).all()) != '[]':
+            raise ValidationError("Value entered not unique.")
             print('failed validation test for uniqueness')
 
-    return _Unique
+    return _Unique_content
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email',
+        validators=[
+            DataRequired(),
+            Email()
+        ]
+    )
+
+    password = PasswordField('Password',
+        validators=[
+            DataRequired()
+        ]
+    )
+
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
 
 class RegistrationForm(FlaskForm):
     email = StringField('Email',
@@ -60,14 +89,14 @@ class PostForm(FlaskForm):
         validators = [
             DataRequired(),
             Length(min=1, max=100),
-            Unique()
+            Unique_title()
         ]
     )
     content = StringField('Content',
         validators = [
             DataRequired(),
             Length(min=1, max=1000),
-            #Unique(Posts.content)
+            Unique_content()
         ]
     )
     submit = SubmitField('Post!')
