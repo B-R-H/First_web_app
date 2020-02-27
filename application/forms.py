@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from application import db
 from application.models import Posts, Users
+from flask_login import current_user
 
 def Unique_title():
     #attempt to colaspe to singel unique function
@@ -25,6 +26,30 @@ def Unique_content():
             print('failed validation test for uniqueness')
 
     return _Unique_content
+
+class UpdateAccountForm(FlaskForm):
+    first_name = StringField('First Name',
+        validators=[
+            DataRequired(),
+            Length(min=4, max=30)
+        ])
+    last_name = StringField('Last Name',
+        validators=[
+            DataRequired(),
+            Length(min=4, max=30)
+        ])
+    email = StringField('Email',
+        validators=[
+            DataRequired(),
+            Email()
+        ])
+    submit = SubmitField('Update')
+
+    def validate_email(self,email):
+        if email.data != current_user.email:
+            user = Users.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('Email already in use')
 
 
 class LoginForm(FlaskForm):
