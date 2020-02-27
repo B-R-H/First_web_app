@@ -32,6 +32,19 @@ def account():
         form.email.data = current_user.email        
     return render_template('account.html', title='Account', form=form)
 
+@app.route("/account/delete", methods=["GET", "POST"])
+@login_required
+def account_delete():
+    user = current_user.id
+    account = Users.query.filter_by(id=user).first()
+    user_posts = Posts.query.filter_by(user_id = user).all()
+    logout_user()
+    for i in user_posts:
+        db.session.delete(i)
+    db.session.delete(account)
+    db.session.commit()
+    return redirect(url_for('register'))
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:

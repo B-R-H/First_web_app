@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block body_content %}
-    <p>Need an account? Sign up</p>
+<h3>{{ current_user.first_name }} {{ current_user.last_name }} </h3>
     <div class='form'>
         <form method='POST' action=''>
             {{ form.hidden_tag() }}
@@ -50,5 +50,10 @@
                 {{ form.submit }}
             </div>
         </form>
+    </div>
+    <div class = 'link'>
+	<form action="{{ url_for('account_delete') }}">
+            <button type="submit">Delete your account</button>
+	</form>
     </div>
 {% endblock %}
